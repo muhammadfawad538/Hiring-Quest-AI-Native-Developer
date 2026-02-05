@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Orchestra - AI Agent Collaboration Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .panel-title {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #ffcc00;
+            border-bottom: 2px solid #ffcc00;
+            padding-bottom: 0.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 2px solid #444;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            resize: vertical;
+            font-size: 1rem;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #ffcc00;
+        }
+
+        button {
+            background: linear-gradient(45deg, #ff8c00, #ffcc00);
+            color: #1a1a2e;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 204, 0, 0.4);
+        }
+
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-display {
+            min-height: 150px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            white-space: pre-wrap;
+            overflow-y: auto;
+            max-height: 200px;
+        }
+
+        .logs-container {
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .log-entry {
+            padding: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .log-timestamp {
+            color: #aaa;
+            font-size: 0.8rem;
+        }
+
+        .log-level-info {
+            color: #4caf50;
+        }
+
+        .log-level-warn {
+            color: #ff9800;
+        }
+
+        .log-level-error {
+            color: #f44336;
+        }
+
+        .agent-tag {
+            display: inline-block;
+            background: rgba(255, 204, 0, 0.2);
+            color: #ffcc00;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-active {
+            background: #4caf50;
+            box-shadow: 0 0 8px #4caf50;
+        }
+
+        .status-inactive {
+            background: #f44336;
+        }
+
+        .agent-status {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .agent-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .agent-item {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1> orchestra </h1>
+            <div class="subtitle">AI Agent Collaboration Platform</div>
+        </header>
+
+        <div class="main-content">
+            <div class="panel">
+                <h2 class="panel-title">Task Input</h2>
+                <div class="input-group">
+                    <textarea id="userInput" placeholder="Describe your task or request (e.g., 'Create a simple calculator app', 'Design a responsive navigation bar', 'Fix the bug in my login function')"></textarea>
+                </div>
+                <button id="submitBtn">Process with AI Orchestra</button>
+
+                <div class="result-display" id="resultDisplay">
+                    Results will appear here...
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2 class="panel-title">Real-time Processing Logs</h2>
+                <div class="logs-container" id="logsContainer">
+                    <div class="log-entry">System initialized. Waiting for input...</div>
+                </div>
+
+                <div class="agent-status">
+                    <h3>Active Agents</h3>
+                    <div class="agent-list" id="agentStatus">
+                        <div class="agent-item">
+                            <span class="status-indicator status-active"></span>
+                            <span>Coordinator</span>
+                        </div>
+                        <div class="agent-item">
+                            <span class="status-indicator status-active"></span>
+                            <span>Developer</span>
+                        </div>
+                        <div class="agent-item">
+                            <span class="status-indicator status-active"></span>
+                            <span>Designer</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const userInput = document.getElementById('userInput');
+            const submitBtn = document.getElementById('submitBtn');
+            const resultDisplay = document.getElementById('resultDisplay');
+            const logsContainer = document.getElementById('logsContainer');
+
+            // Function to add log entry
+            function addLogEntry(message, level = 'info', agent = null) {
+                const logEntry = document.createElement('div');
+                logEntry.className = 'log-entry';
+
+                const timestamp = new Date().toISOString();
+                const timeSpan = document.createElement('span');
+                timeSpan.className = 'log-timestamp';
+                timeSpan.textContent = `[${timestamp}] `;
+
+                logEntry.appendChild(timeSpan);
+
+                if (agent) {
+                    const agentTag = document.createElement('span');
+                    agentTag.className = 'agent-tag';
+                    agentTag.textContent = agent;
+                    logEntry.appendChild(agentTag);
+                }
+
+                const levelClass = `log-level-${level}`;
+                const levelSpan = document.createElement('span');
+                levelSpan.className = levelClass;
+                levelSpan.textContent = `[${level.toUpperCase()}] `;
+
+                logEntry.appendChild(levelSpan);
+                logEntry.appendChild(document.createTextNode(message));
+
+                logsContainer.appendChild(logEntry);
+                logsContainer.scrollTop = logsContainer.scrollHeight;
+            }
+
+            // Function to submit task
+            async function submitTask() {
+                const input = userInput.value.trim();
+                if (!input) {
+                    alert('Please enter a task');
+                    return;
+                }
+
+                submitBtn.disabled = true;
+                resultDisplay.textContent = 'Processing...';
+                addLogEntry(`User input received: "${input}"`, 'info', 'SYSTEM');
+
+                try {
+                    const response = await fetch('/api/process', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ userInput: input })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        resultDisplay.textContent = JSON.stringify(data.result, null, 2);
+                        addLogEntry('Task completed successfully', 'info', 'SYSTEM');
+                    } else {
+                        resultDisplay.textContent = `Error: ${data.error}`;
+                        addLogEntry(`Error: ${data.error}`, 'error', 'SYSTEM');
+                    }
+                } catch (error) {
+                    resultDisplay.textContent = `Error: ${error.message}`;
+                    addLogEntry(`Connection error: ${error.message}`, 'error', 'SYSTEM');
+                } finally {
+                    submitBtn.disabled = false;
+                }
+            }
+
+            // Event listeners
+            submitBtn.addEventListener('click', submitTask);
+
+            // Allow submitting with Ctrl+Enter
+            userInput.addEventListener('keydown', function(e) {
+                if (e.ctrlKey && e.key === 'Enter') {
+                    submitTask();
+                }
+            });
+
+            // Periodically fetch logs
+            setInterval(async function() {
+                try {
+                    const response = await fetch('/api/logs');
+                    const logs = await response.json();
+
+                    // For demo purposes, we'll just add a periodic heartbeat
+                    // In a real system, this would update with actual logs
+                } catch (error) {
+                    // Silently handle errors for log fetching
+                }
+            }, 5000); // Every 5 seconds
+
+            // Add initial log
+            addLogEntry('AI Orchestra system ready', 'info', 'SYSTEM');
+        });
+    </script>
+</body>
+</html>

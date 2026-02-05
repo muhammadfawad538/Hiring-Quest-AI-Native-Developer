@@ -1,0 +1,25 @@
+{
+  "agents": {
+    "developer": {
+      "enabled": true,
+      "capabilities": ["code_generation", "debugging", "architecture_design"]
+    },
+    "designer": {
+      "enabled": true,
+      "capabilities": ["ui_design", "ux_considerations", "visual_elements"]
+    },
+    "coordinator": {
+      "enabled": true,
+      "capabilities": ["task_distribution", "communication", "workflow_management"]
+    }
+  },
+  "logging": {
+    "level": "info",
+    "maxSize": "10m",
+    "maxFiles": "5d"
+  },
+  "server": {
+    "port": 3000,
+    "host": "localhost"
+  }
+}
